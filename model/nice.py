@@ -19,14 +19,11 @@ class Reshape(nn.Module):
 
 
 class CouplingLayer(nn.Module):
-    def __init__(self, dim, key):
+    def __init__(self, dim, key, dim_h=1000, n_hidden=5):
         super().__init__()
 
         self.key = key
 
-        # coupling functionには元論文のMNIST用の設定を採用
-        dim_h = 1000
-        n_hidden = 5
         self.m = nn.Sequential(
             nn.Sequential(nn.Linear(int(dim / 2), dim_h), nn.ReLU()),
             *[
@@ -36,6 +33,9 @@ class CouplingLayer(nn.Module):
             nn.Sequential(nn.Linear(dim_h, int(dim / 2))),
         )
 
+        self.init_weights()
+
+    def init_weights(self):
         # あまり重要ではないかもしれないが、一応ちゃんとした初期化をかけておく
         for i in range(len(self.m) - 1):
             nn.init.kaiming_normal_(
